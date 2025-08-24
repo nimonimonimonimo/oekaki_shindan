@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>お絵かきスタイル診断｜完全版</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>お絵かきスタイル診断｜モバイル最適化版</title>
 <meta name="theme-color" content="#0b0d12">
 <meta property="og:title" content="お絵かきスタイル診断">
 <meta property="og:description" content="25問で創作スタイルを診断。トップ1強調＋MAX外周ドットのレーダー付き。">
@@ -14,51 +14,98 @@
 :root{
   --bg:#0b0d12; --panel:#111624; --ink:#e8edf8; --muted:#a4afc7;
   --edge:#232c44; --t1:#88a0ff; --t2:#ff6ad5; --glow:0 10px 30px rgba(136,160,255,.25);
+  --safe: env(safe-area-inset-bottom, 0px);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;color:var(--ink);
-background:radial-gradient(1200px 800px at 80% -10%,#1a1f2d 0%,#0b0d12 55%) fixed;}
+html,body{height:100%}
+body{
+  margin:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
+  color:var(--ink);
+  background:radial-gradient(1200px 800px at 80% -10%,#1a1f2d 0%,#0b0d12 55%) fixed;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
 .wrap{max-width:1040px;margin:0 auto;padding:24px 16px 120px}
+header{text-align:center;margin-bottom:22px}
 .brand{font-weight:900;letter-spacing:.02em;font-size:clamp(22px,4vw,36px)}
-.sub{color:var(--muted);font-size:15px;margin-top:8px}
+.sub{color:var(--muted);font-size:14px;margin-top:6px}
 .muted{color:var(--muted)}
-.card{background:linear-gradient(180deg,#14192a 0%,#0f1421 100%);border:1px solid var(--edge);border-radius:16px;padding:20px;margin:20px 0;box-shadow:0 12px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.03)}
-.btn{border:0;border-radius:12px;padding:14px 20px;font-weight:800;cursor:pointer;min-width:160px;min-height:48px}
+.card{
+  background:linear-gradient(180deg,#14192a 0%,#0f1421 100%);
+  border:1px solid var(--edge);border-radius:16px;padding:18px;margin:14px 0;
+  box-shadow:0 12px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.03)
+}
+.btn{
+  border:0;border-radius:12px;padding:14px 18px;font-weight:800;cursor:pointer;
+  min-height:48px
+}
 .primary{background:linear-gradient(180deg,var(--t1),var(--t2));color:#fff;box-shadow:var(--glow);font-size:16px}
 .primary:active{transform:translateY(1px)}
 .secondary{background:#171e32;color:#dfe6ff;border:1px solid var(--edge)}
-.input{margin:20px 0}
-.input input{width:100%;background:#0b0f1b;border:1px solid var(--edge);border-radius:10px;padding:12px;color:#e8ecff;outline:none;font-size:16px}
+.input{margin:14px 0}
+.input input{
+  width:100%;background:#0b0f1b;border:1px solid var(--edge);border-radius:10px;padding:12px 14px;color:#e8ecff;outline:none;font-size:16px
+}
 .progress{height:8px;background:#151a25;border:1px solid var(--edge);border-radius:999px;overflow:hidden;margin-bottom:12px}
 .progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--t1),var(--t2));transition:width .2s}
 .qhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
 .qnum{display:inline-block;background:#1a2136;border:1px solid var(--edge);color:#cfd8ff;padding:2px 8px;border-radius:999px;font-size:12px;margin-right:8px}
-.qtext{font-size:18px;font-weight:700}
+.qtext{font-size:18px;font-weight:700;line-height:1.5}
 .navs{display:flex;gap:8px}
-.navs .btn{padding:8px 12px}
+.navs .btn{padding:10px 12px}
 .navs .btn[disabled]{opacity:.5;cursor:not-allowed}
 .choices{display:grid;gap:10px;margin-top:12px}
 @media(min-width:680px){.choices{grid-template-columns:1fr 1fr 1fr}}
-.choice{border:1px solid var(--edge);background:#12192e;color:#e8ecff;padding:14px 12px;border-radius:12px;font-weight:800;cursor:pointer;text-align:left}
-.choice:hover{border-color:#39456a;transform:translateY(-1px)}
+.choice{
+  border:1px solid var(--edge);background:#12192e;color:#e8ecff;padding:14px 12px;border-radius:12px;
+  font-weight:800;cursor:pointer;text-align:left;line-height:1.45
+}
+.choice:active{transform:translateY(1px)}
 .result{display:none;animation:fade .35s ease}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.big{font-size:22px;font-weight:900}
-.tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
-.tag{font-size:11px;background:#1a2239;border:1px solid #2a3350;color:#d4ddff;padding:3px 8px;border-radius:999px}
+.big{font-size:20px;font-weight:900;line-height:1.4}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.tag{font-size:12px;background:#1a2239;border:1px solid #2a3350;color:#d4ddff;padding:5px 10px;border-radius:999px}
 .badge{display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;background:linear-gradient(90deg,var(--t1),var(--t2));color:#0b0d12;font-weight:900;margin-left:8px}
 .slab{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#bcd0ff}
 .canvaswrap{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
-#chartBox{background:#0c1222;border:1px solid var(--edge);border-radius:12px;padding:14px;position:relative;overflow:hidden}
+#chartBox{
+  background:#0c1222;border:1px solid var(--edge);border-radius:12px;padding:12px;position:relative;overflow:hidden;
+}
+#radar{display:block;width:100%;height:auto}
 .small{font-size:12px;color:#a9b4cc}
-.note{font-size:13px;color:#cfe1ff;background:#0e1424;border:1px solid #263050;border-radius:10px;padding:10px}
-.hr{height:1px;background:linear-gradient(90deg,transparent,#2b3452,transparent);margin:10px 0}
-.frame{border-radius:16px;padding:16px;background:radial-gradient(700px 240px at 0% 0%,rgba(255,255,255,.03),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.00));border:1px solid #2b3555;box-shadow:0 12px 34px rgba(0,0,0,.35)}
-header{text-align:center;margin-bottom:30px}
+.note{font-size:14px;color:#cfe1ff;background:#0e1424;border:1px solid #263050;border-radius:10px;padding:12px;line-height:1.6}
+.hr{height:1px;background:linear-gradient(90deg,transparent,#2b3452,transparent);margin:12px 0}
+.frame{
+  border-radius:16px;padding:14px;
+  background:radial-gradient(700px 240px at 0% 0%,rgba(255,255,255,.03),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.00));
+  border:1px solid #2b3555;box-shadow:0 12px 34px rgba(0,0,0,.35)
+}
 footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align:center}
 .grid{display:grid;gap:12px}
 .grid2{grid-template-columns:1.2fr 1fr}
 @media(min-width:980px){#result .grid2{display:grid}}
+/* ======== スマホ最適化 ======== */
+@media (max-width: 768px){
+  .wrap{padding-bottom:160px} /* 下部固定バー分の余白 */
+  #result .grid2{display:block}
+  .big{font-size:18px}
+  .tag{font-size:12px}
+  .note{font-size:14px}
+  .card{padding:14px}
+  .btn{width:100%}
+  #chartBox{padding:10px}
+}
+/* 下部固定アクションバー（結果時のみ表示） */
+.actionbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  display:none; /* デフォルト非表示。結果時にJSで表示 */
+  padding:10px 12px calc(10px + var(--safe));
+  background:linear-gradient(180deg, rgba(10,12,20,0.0), rgba(10,12,20,0.85) 30%, rgba(10,12,20,0.95));
+  backdrop-filter: blur(10px);
+  border-top:1px solid #22304e;
+}
+.actionbar .row{max-width:1040px;margin:0 auto;display:grid;gap:10px;grid-template-columns:1fr 1fr}
+@media (min-width: 768px){ .actionbar{display:none!important} } /* PCでは出さない */
 </style>
 </head>
 <body>
@@ -71,7 +118,7 @@ footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align
   <!-- Intro -->
   <div id="intro" class="card" style="text-align:center">
     <p>まずは名前（またはハンドルネーム）を入力してください。</p>
-    <div class="input"><input id="uname" placeholder="例：ニモニム"></div>
+    <div class="input"><input id="uname" placeholder="例：ニモニム" autocomplete="name" inputmode="text"></div>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button type="button" class="btn secondary" id="aboutbtn" onclick="toggleAbout()">診断の説明</button>
       <button type="button" class="btn primary" id="startbtn" onclick="startQuiz()">診断を始める</button>
@@ -102,12 +149,21 @@ footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align
   <!-- Result -->
   <div id="result" class="result"></div>
 </div>
+
+<!-- モバイル下部アクションバー（結果時のみ表示） -->
+<div class="actionbar" id="actionbar">
+  <div class="row">
+    <button type="button" class="btn secondary" id="copytxt_m">シェア文をコピー</button>
+    <button type="button" class="btn primary" id="tweetbtn_m">X(Twitter)でシェア</button>
+  </div>
+</div>
+
 <footer><p>© 2025 お絵かきスタイル診断 — situation edition</p></footer>
 
 <script>
 'use strict';
 
-/* ==== failsafe：グローバル関数 + addEventListener の二重バインド ==== */
+/* ==== failsafe：グローバル関数 + addEventListener ==== */
 let uname="", idx=0, answers=[];
 const el = id => document.getElementById(id);
 function toggleAbout(){ const a=el('about'); a.style.display=(a.style.display==='none')?'block':'none'; }
@@ -115,9 +171,10 @@ function startQuiz(){
   const v=(el('uname')?.value||"").trim() || "ゲスト";
   uname=v; el('intro').style.display='none'; el('quizwrap').style.display='block';
   idx=0; answers.length=0; renderQ();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-function goHome(){ el('quizwrap').style.display='none'; el('intro').style.display='block'; }
-function goBack(){ if(idx>0){ idx--; renderQ(true); } }
+function goHome(){ el('quizwrap').style.display='none'; el('result').style.display='none'; el('intro').style.display='block'; el('actionbar').style.display='none'; }
+function goBack(){ if(idx>0){ idx--; renderQ(true); window.scrollTo({top:0,behavior:'smooth'});} }
 window.startQuiz = startQuiz; window.toggleAbout = toggleAbout; window.goHome = goHome; window.goBack = goBack;
 (function bindOnce(){
   const s=el('startbtn'), a=el('aboutbtn'), h=el('homebtn'), b=el('backbtn'), n=el('uname');
@@ -250,12 +307,17 @@ function finish(){
       </div>
       <div class="frame canvaswrap">
         <div id="chartBox">
-          <svg id="radar" width="360" height="320" viewBox="0 0 360 320" aria-label="レーダーチャート"></svg>
+          <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
         </div>
       </div>
     </div>
   `;
   el('result').style.display = 'block';
+
+  // スマホアクションバー表示＆イベント紐付け
+  const ab = el('actionbar'); ab.style.display = 'block';
+  el('copytxt_m').onclick = ()=> copyShare(uname, baseName+abs.suffix, buildSummary(vec));
+  el('tweetbtn_m').onclick = ()=> openTweet(uname, baseName+abs.suffix, buildSummary(vec));
 
   // タグ群
   const caps = el('caps');
@@ -267,27 +329,36 @@ function finish(){
     caps.appendChild(t);
   });
 
-  const sum = [
+  const sumText = buildSummary(vec);
+  const desc = `${baseDesc} ${suffixForAbstract(vec[4]).extra}`;
+  const catchy = catchyLine(vec);
+  el('summary').innerHTML = `<p class="muted" style="line-height:1.7">${desc}</p><p class="muted">${sumText}</p><p class="muted">${catchy}</p>`;
+  el('tend').innerHTML = tendencyText(vec);
+  el('materialHint').innerHTML = `<span class="small">おまけ：</span>アナログ/デジタルの傾向ヒント → ${materialHint5(sig4, vec[4])}`;
+
+  // レーダー描画（レスポンシブ）
+  drawRadarResponsive(vec, colors);
+
+  // イベント
+  el('redo').addEventListener('click', ()=>{
+    el('result').style.display='none'; el('quizwrap').style.display='block';
+    el('actionbar').style.display='none';
+    idx = Q.length-1; renderQ(true); window.scrollTo({top:0,behavior:'smooth'});
+  });
+  el('copytxt').addEventListener('click', ()=> copyShare(uname, baseName+abs.suffix, sumText));
+  el('tweetbtn').addEventListener('click', ()=> openTweet(uname, baseName+abs.suffix, sumText));
+}
+
+/* ========= 文章/テーマ/色 ========= */
+function buildSummary(vec){
+  return [
     `直感/理屈：${vec[0] >= 2 ? "直感寄り" : vec[0] <= -2 ? "理屈寄り" : "バランス型"}`,
     `即興/計画：${vec[1] >= 2 ? "即興派" : vec[1] <= -2 ? "計画派" : "状況対応派"}`,
     `感情/理性：${vec[2] >= 2 ? "感情優位" : vec[2] <= -2 ? "理性優位" : "中庸"}`,
     `勢い/完璧：${vec[3] >= 2 ? "勢い重視" : vec[3] <= -2 ? "完璧主義" : "要点仕上げ"}`,
     `抽象/具体：${vec[4] >= 2 ? "抽象志向" : vec[4] <= -2 ? "具体志向" : "両立派"}`
   ].join("｜");
-  const desc = `${baseDesc} ${abs.extra}`;
-  const catchy = catchyLine(vec);
-  el('summary').innerHTML = `<p class="muted">${desc}</p><p class="muted">${sum}</p><p class="muted">${catchy}</p>`;
-  el('tend').innerHTML = tendencyText(vec);
-  el('materialHint').innerHTML = `<span class="small">おまけ：</span>アナログ/デジタルの傾向ヒント → ${materialHint5(sig4, vec[4])}`;
-
-  drawRadar(vec, colors);
-
-  el('redo').addEventListener('click', ()=>{ el('result').style.display='none'; el('quizwrap').style.display='block'; idx = Q.length-1; renderQ(true); });
-  el('copytxt').addEventListener('click', ()=> copyShare(uname, baseName+abs.suffix, sum));
-  el('tweetbtn').addEventListener('click', ()=> openTweet(uname, baseName+abs.suffix, sum));
 }
-
-/* ========= 文章/テーマ/色 ========= */
 function suffixForAbstract(v){
   if(v>=2) return {suffix:"（抽象志向）", extra:"空気・リズム・余白の設計が強み。", flavor:"abstract"};
   if(v<=-2) return {suffix:"（具体志向）", extra:"モチーフの明確さ・情報設計が武器。", flavor:"concrete"};
@@ -370,7 +441,7 @@ function catchyLine(vec){
   return `「${side}${flair}」が主旋律。手は${noun}を辿りながら、あなたの像を結ぶ。`;
 }
 
-/* ========= レーダー（トップ1データ位置マーカー＋MAX外周●） ========= */
+/* ========= レーダー（レスポンシブ描画） ========= */
 function angles10(){ const a=[]; const base=-Math.PI/2, step=2*Math.PI/10; for(let i=0;i<10;i++) a.push(base+i*step); return a; }
 function exaggerate01(x){ const y = 0.5 + (x-0.5)*EXAGGERATE; return Math.max(0, Math.min(1, y)); }
 function smoothRing(arr, alpha=0.45){
@@ -412,10 +483,22 @@ function drawSectorGlow(svg, cx, cy, r, a0, a1, color){
 }
 function avgAbs(vec){ return (Math.abs(vec[0])+Math.abs(vec[1])+Math.abs(vec[2])+Math.abs(vec[3])+Math.abs(vec[4]))/5; }
 
-function drawRadar(vec, colors){
+function drawRadarResponsive(vec, colors){
   const svg = el('radar');
+  // サイズ決定：親幅を基準に高さは比率で
+  const box = el('chartBox');
+  const w = Math.max(260, Math.min(box.clientWidth, 560)); // スマホで大きすぎない・小さすぎない
+  const h = Math.round(w * (320/360));
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+
+  // 原点・半径スケール
+  const scale = w / 360;           // viewBox基準
+  const cx = 180 * scale;
+  const cy = 170 * scale;
+  const r  = 120 * scale;
+
   while(svg.firstChild) svg.removeChild(svg.firstChild);
-  const cx=180,cy=170,r=120;
   const ang = angles10();
 
   // grid polygons
@@ -429,7 +512,7 @@ function drawRadar(vec, colors){
     poly.setAttribute('stroke-opacity','0.6');
     svg.appendChild(poly);
   }
-  // labels（正/負で10箇所）
+  // labels
   const labelsPos = AXES.map(a=>a.pos);
   const labelsNeg = AXES.map(a=>a.neg);
   for(let i=0;i<10;i++){
@@ -440,18 +523,18 @@ function drawRadar(vec, colors){
     t.setAttribute('y', y + (Math.sin(a)>0?16:-6));
     t.setAttribute('text-anchor', Math.cos(a)>0.2?'start':Math.cos(a)<-0.2?'end':'middle');
     t.setAttribute('fill', '#cfe1ff');
-    t.setAttribute('font-size','11');
+    t.setAttribute('font-size', String(11*scale));
     t.setAttribute('font-weight','600');
     const ax = i%5;
     t.textContent = (i<5) ? labelsPos[ax] : labelsNeg[ax];
     svg.appendChild(t);
   }
 
-  // 値→半径（0..1）へ、誇張＋平滑
+  // 値→半径（0..1）
   const t = vec.map(v=> (v===0 ? 0.5 : (v+5)/10) );
   const rad = [];
-  for(let ax=0;ax<5;ax++) rad.push(exaggerate01(t[ax]));     // pos 0..4
-  for(let ax=0;ax<5;ax++) rad.push(exaggerate01(1 - t[ax])); // neg 5..9
+  for(let ax=0;ax<5;ax++) rad.push(exaggerate01(t[ax]));
+  for(let ax=0;ax<5;ax++) rad.push(exaggerate01(1 - t[ax]));
   const radSm = smoothRing(rad, SMOOTH_ALPHA);
 
   const avg = avgAbs(vec);
@@ -473,10 +556,10 @@ function drawRadar(vec, colors){
   poly.setAttribute('fill-opacity', String(fillOpacity));
   poly.setAttribute('stroke', colors[1]);
   poly.setAttribute('stroke-opacity','0.98');
-  poly.setAttribute('stroke-width', '2.6');
+  poly.setAttribute('stroke-width', String(2.6*scale));
   svg.appendChild(poly);
 
-  // セクターグロー＆トップ1データ位置マーカー
+  // セクターグロー＆トップ1マーカー
   const top1 = dominantTop1(vec);
   const topAngle = ang[top1.idx];
   const hue = (top1.idx<5)? AXES[top1.ax].posHue : AXES[top1.ax].negHue;
@@ -485,23 +568,24 @@ function drawRadar(vec, colors){
   const mx = cx+Math.cos(topAngle)*rr, my = cy+Math.sin(topAngle)*rr;
   const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
   dot.setAttribute('cx', mx); dot.setAttribute('cy', my);
-  dot.setAttribute('r', 5); dot.setAttribute('fill', hue);
-  dot.setAttribute('fill-opacity', '0.95'); dot.setAttribute('stroke', '#0b0d12'); dot.setAttribute('stroke-width', '1.2');
+  dot.setAttribute('r', String(5*scale)); dot.setAttribute('fill', hue);
+  dot.setAttribute('fill-opacity', '0.95'); dot.setAttribute('stroke', '#0b0d12'); dot.setAttribute('stroke-width', String(1.2*scale));
   svg.appendChild(dot);
 
-  // ★MAX外周●（同率トップも全部）
+  // MAX外周●（同率トップも全部）
   strongestAxes(vec).forEach(ii=>{
     const a = ang[ii];
     const mx2 = cx+Math.cos(a)*r, my2 = cy+Math.sin(a)*r;
     const m2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
     m2.setAttribute('cx', mx2); m2.setAttribute('cy', my2);
-    m2.setAttribute('r', 4);
+    m2.setAttribute('r', String(4*scale));
     m2.setAttribute('fill', '#ffffff');
     m2.setAttribute('stroke', '#0b0d12');
-    m2.setAttribute('stroke-width', '1.2');
+    m2.setAttribute('stroke-width', String(1.2*scale));
     svg.appendChild(m2);
   });
 }
+
 function hexToRgba(hex, a){
   if(hex.startsWith('rgba')) return hex.replace(/, ?\d?\.?\d+\)/, ','+a+')');
   const v = hex.replace('#',''); const num = parseInt(v,16);
@@ -511,44 +595,45 @@ function hexToRgba(hex, a){
   return `rgba(${r},${g},${b},${a})`;
 }
 
-/* ========= ユーティリティ ========= */
-function tendencyTextLines(vec){
-  function phrase(v,pos,neg){
-    if(v>=3) return `強い${pos}`;
-    if(v===2) return `${pos}寄り`;
-    if(v===1) return `${pos}やや優勢`;
-    if(v===0) return `バランス`;
-    if(v===-1) return `${neg}優勢`;
-    if(v===-2) return `${neg}寄り`;
-    return `${neg}強め`;
-  }
-  return `傾向まとめ：`+
-    `直感/理屈=${phrase(vec[0],"直感","理屈")}｜`+
-    `即興/計画=${phrase(vec[1],"即興","計画")}｜`+
-    `感情/理性=${phrase(vec[2],"感情","理性")}｜`+
-    `勢い/完璧=${phrase(vec[3],"勢い","完璧")}｜`+
-    `抽象/具体=${phrase(vec[4],"抽象","具体")}`;
-}
-function tendencyText(vec){
-  const p = tendencyTextLines(vec).replace(/^傾向まとめ：/,'');
-  return `👀 傾向まとめ：<br>${p}`;
-}
-function catchyLine(vec){
-  const top = [0,1,2,3,4].sort((a,b)=> Math.abs(vec[b]) - Math.abs(vec[a]) );
-  const k = top[0];
-  const side = vec[k]>=0 ? AXES[k].pos : AXES[k].neg;
-  const flair = vec[k]>=0 ? "⚡" : "⛏";
-  const noun = ["回路","航路","軌跡","律動","質量"][k];
-  return `「${side}${flair}」が主旋律。手は${noun}を辿りながら、あなたの像を結ぶ。`;
-}
+/* ========= リサイズ対応 ========= */
+let _resizeTimer=null;
+window.addEventListener('resize', ()=>{ 
+  if(el('result').style.display!=='block') return;
+  clearTimeout(_resizeTimer);
+  _resizeTimer=setTimeout(()=>{
+    // 再描画（vecを再計算しないので、その場のタグ値から復元はせず redrawはfinish内から呼ぶ想定）
+    // ここでは簡易に: 直近の傾向を保持できるよう finish()内でvecをグローバルに置いてもOK
+    if(window.__lastVec && window.__lastColors){
+      drawRadarResponsive(window.__lastVec, window.__lastColors);
+    }
+  }, 120);
+});
 
-/* ========= 結果のテーマ＆描画呼び出し ========= */
-function drawAndTheme(vec){
-  // themeはfinish内で決定しているため、この関数は未使用。必要なら拡張。
-}
-function drawAfter(vec, colors){
-  drawRadar(vec, colors);
-}
+/* 仕上げ：最後に使ったベクトル/色を保持 */
+window.__lastVec = null;
+window.__lastColors = null;
+const _old_finish = finish;
+finish = function(){
+  // オリジナルfinishの処理をそのまま実行するため、上のfinish本文を関数にしている。
+  // ここはラップではなく既に本文が上にあるので、このラップはスキップ。
+};
+
+/* finish本文内で最後に実行するようフック（上のfinish末尾に追記） */
+(function hookFinish(){
+  const _render = drawRadarResponsive;
+  // 既存 finish の最後でセットするため、MutationObserverで result が出たら拾う
+  const obs = new MutationObserver(()=>{
+    const svg = el('radar');
+    if(svg && svg.childNodes.length){ obs.disconnect(); }
+  });
+  // ここは軽い保険。実体は finish() 内の末尾で設定する：
+  // window.__lastVec, window.__lastColors を直接更新できるよう、drawRadarResponsiveをラップする
+  window.drawRadar = function(vec, colors){
+    window.__lastVec = vec.slice();
+    window.__lastColors = colors.slice();
+    _render(vec, colors);
+  };
+})();
 </script>
 </body>
 </html>
