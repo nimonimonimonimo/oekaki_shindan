@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>お絵かきスタイル診断｜完全版（failsafe/小さめPNG）</title>
+<title>お絵かきスタイル診断｜完全版</title>
 <meta name="theme-color" content="#0b0d12">
-<!-- OGP -->
 <meta property="og:title" content="お絵かきスタイル診断">
 <meta property="og:description" content="25問で創作スタイルを診断。トップ1強調＋MAX外周ドットのレーダー付き。">
 <meta property="og:type" content="website">
@@ -94,7 +93,7 @@ footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align
       </div>
       <div class="progress"><div id="bar"></div></div>
     </div>
-    <div class="card">
+    <div class="card" id="quiz">
       <div class="qtext" id="qtext">…</div>
       <div id="choices" class="choices"></div>
     </div>
@@ -105,11 +104,10 @@ footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align
 </div>
 <footer><p>© 2025 お絵かきスタイル診断 — situation edition</p></footer>
 
-<!-- ===== JSはボディ末尾に置く：起動安定のため ===== -->
 <script>
 'use strict';
 
-/* ========= failsafe：グローバル関数 + addEventListener の二重バインド ========= */
+/* ==== failsafe：グローバル関数 + addEventListener の二重バインド ==== */
 let uname="", idx=0, answers=[];
 const el = id => document.getElementById(id);
 function toggleAbout(){ const a=el('about'); a.style.display=(a.style.display==='none')?'block':'none'; }
@@ -121,7 +119,6 @@ function startQuiz(){
 function goHome(){ el('quizwrap').style.display='none'; el('intro').style.display='block'; }
 function goBack(){ if(idx>0){ idx--; renderQ(true); } }
 window.startQuiz = startQuiz; window.toggleAbout = toggleAbout; window.goHome = goHome; window.goBack = goBack;
-
 (function bindOnce(){
   const s=el('startbtn'), a=el('aboutbtn'), h=el('homebtn'), b=el('backbtn'), n=el('uname');
   try{
@@ -138,6 +135,7 @@ window.startQuiz = startQuiz; window.toggleAbout = toggleAbout; window.goHome = 
 const EXAGGERATE = 1.6;
 const SMOOTH_ALPHA = 0.45;
 
+/* ========= 軸と質問 ========= */
 const AXES = [
   {key:"intuition", pos:"直感", neg:"理屈", posHue:"#ff9b6b", negHue:"#7fb4ff"},
   {key:"improv",    pos:"即興", neg:"計画", posHue:"#ffd36b", negHue:"#88a0ff"},
@@ -145,7 +143,6 @@ const AXES = [
   {key:"momentum",  pos:"勢い", neg:"完璧", posHue:"#a0ffd3", negHue:"#b5c7ff"},
   {key:"abstract",  pos:"抽象", neg:"具体", posHue:"#c6a6ff", negHue:"#ff8a6b"}
 ];
-
 const Q = [
   {axis:0,q:"電車の待ち時間にスケッチブックを開いたら？",c:["何も考えず線を走らせる","周りの人や風景を観察して描く","ざっくり構図を決めてから描く"]},
   {axis:0,q:"新しいキャラを考えるとき",c:["頭に浮かんだイメージを一気に描く","設定や世界観を整理してから描く","ラフで探りながら進める"]},
@@ -174,7 +171,7 @@ const Q = [
   {axis:4,q:"初対面の人をテーマにするなら？",c:["印象やオーラを描く","顔や服装を描く","両方"]}
 ];
 
-/* ========= タイプ名・文章 ========= */
+/* ========= タイプ名・説明 ========= */
 const TYPE_NAMES_4 = {
   "1111":"烈火のスケッチャー","1110":"幻彩の調律者","1101":"混沌のストラテジスト","1100":"静寂の構築士",
   "1011":"流星のドラフター","1010":"夢幻の構築者","1001":"稲妻の戦略家","1000":"未来の錬成師",
@@ -200,7 +197,7 @@ const TYPE_DESC_4 = {
   "0000":"構造の果てを追う設計者。極限まで磨く終着点志向。"
 };
 
-/* ========= 質問描画 ========= */
+/* ========= 出題・採点・結果表示 ========= */
 function renderQ(){
   const item = Q[idx];
   el('qtext').textContent = item.q;
@@ -218,7 +215,6 @@ function renderQ(){
   });
 }
 
-/* ========= 診断の集計＆結果表示 ========= */
 function finish(){
   el('bar').style.width = '100%';
   el('quizwrap').style.display = 'none';
@@ -248,17 +244,13 @@ function finish(){
         <div class="small" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
           <button type="button" class="btn secondary" onclick="goHome()">最初の画面へ戻る</button>
           <button type="button" class="btn secondary" id="redo">回答を見直す</button>
+          <button type="button" class="btn secondary" id="copytxt">シェア文をコピー</button>
+          <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
         </div>
       </div>
       <div class="frame canvaswrap">
         <div id="chartBox">
           <svg id="radar" width="360" height="320" viewBox="0 0 360 320" aria-label="レーダーチャート"></svg>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button type="button" class="btn primary" id="saveimg">結果画像を保存</button>
-          <button type="button" class="btn secondary" id="copytxt">シェア文をコピー</button>
-          <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
-          <p class="small">PNG保存→Xで画像を添付。</p>
         </div>
       </div>
     </div>
@@ -291,7 +283,6 @@ function finish(){
   drawRadar(vec, colors);
 
   el('redo').addEventListener('click', ()=>{ el('result').style.display='none'; el('quizwrap').style.display='block'; idx = Q.length-1; renderQ(true); });
-  el('saveimg').addEventListener('click', ()=> saveImage(uname, baseName+abs.suffix, vec, colors, desc, sum, catchy));
   el('copytxt').addEventListener('click', ()=> copyShare(uname, baseName+abs.suffix, sum));
   el('tweetbtn').addEventListener('click', ()=> openTweet(uname, baseName+abs.suffix, sum));
 }
@@ -379,7 +370,7 @@ function catchyLine(vec){
   return `「${side}${flair}」が主旋律。手は${noun}を辿りながら、あなたの像を結ぶ。`;
 }
 
-/* ========= レーダー（スポーク無し・トップ1マーカー＋MAX外周●） ========= */
+/* ========= レーダー（トップ1データ位置マーカー＋MAX外周●） ========= */
 function angles10(){ const a=[]; const base=-Math.PI/2, step=2*Math.PI/10; for(let i=0;i<10;i++) a.push(base+i*step); return a; }
 function exaggerate01(x){ const y = 0.5 + (x-0.5)*EXAGGERATE; return Math.max(0, Math.min(1, y)); }
 function smoothRing(arr, alpha=0.45){
@@ -424,7 +415,7 @@ function avgAbs(vec){ return (Math.abs(vec[0])+Math.abs(vec[1])+Math.abs(vec[2])
 function drawRadar(vec, colors){
   const svg = el('radar');
   while(svg.firstChild) svg.removeChild(svg.firstChild);
-  const W=360,H=320,cx=180,cy=170,r=120;
+  const cx=180,cy=170,r=120;
   const ang = angles10();
 
   // grid polygons
@@ -482,7 +473,7 @@ function drawRadar(vec, colors){
   poly.setAttribute('fill-opacity', String(fillOpacity));
   poly.setAttribute('stroke', colors[1]);
   poly.setAttribute('stroke-opacity','0.98');
-  poly.setAttribute('stroke-width','2.6');
+  poly.setAttribute('stroke-width', '2.6');
   svg.appendChild(poly);
 
   // セクターグロー＆トップ1データ位置マーカー
@@ -511,7 +502,6 @@ function drawRadar(vec, colors){
     svg.appendChild(m2);
   });
 }
-
 function hexToRgba(hex, a){
   if(hex.startsWith('rgba')) return hex.replace(/, ?\d?\.?\d+\)/, ','+a+')');
   const v = hex.replace('#',''); const num = parseInt(v,16);
@@ -521,203 +511,7 @@ function hexToRgba(hex, a){
   return `rgba(${r},${g},${b},${a})`;
 }
 
-/* ========= PNG出力（濃色BG＋読みやすさUP＋小さめ800×560＋DPR対応） ========= */
-function saveImage(uname, title, vec, colors, desc, sum, catchy){
-  const CSS_W = 800, CSS_H = 560;             // ← 小さめ出力
-  const DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-  const W = CSS_W * DPR, H = CSS_H * DPR;
-
-  const c = document.createElement('canvas');
-  c.width = W; c.height = H;
-  c.style.width = CSS_W + 'px';
-  c.style.height = CSS_H + 'px';
-  const g = c.getContext('2d');
-  g.setTransform(DPR, 0, 0, DPR, 0, 0);
-  g.clearRect(0,0,CSS_W,CSS_H);
-
-  // 背景：濃色＋弱めのテーマグラデ＋ビネット（白は使わない）
-  g.fillStyle = '#0a0c14';
-  g.fillRect(0,0,CSS_W,CSS_H);
-
-  const grd = g.createLinearGradient(0,0,CSS_W,CSS_H);
-  grd.addColorStop(0, hexToRgba(colors[0], 0.18));
-  grd.addColorStop(1, hexToRgba(colors[1], 0.10));
-  g.fillStyle = grd; g.fillRect(0,0,CSS_W,CSS_H);
-
-  const vg = g.createRadialGradient(CSS_W*0.5, CSS_H*0.42, CSS_W*0.12, CSS_W*0.5, CSS_H*0.42, CSS_W*0.65);
-  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)');
-  g.fillStyle = vg; g.fillRect(0,0,CSS_W,CSS_H);
-
-  // 外枠
-  g.strokeStyle='#25304e'; g.lineWidth=1.5; g.strokeRect(18,18,CSS_W-36,CSS_H-36);
-
-  // タイトル
-  const FONT_UI = '"Noto Sans JP","Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Roboto,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
-  g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 5; g.shadowOffsetX = 0; g.shadowOffsetY = 2;
-
-  g.fillStyle='#cfe1ff'; g.font=`700 22px ${FONT_UI}`;
-  g.fillText('お絵かきスタイル診断', 36, 52);
-
-  g.font=`700 32px ${FONT_UI}`; g.fillStyle='#e8ecff';
-  g.fillText(`${uname} は「${title}」`, 36, 98);
-
-  // 説明パネル
-  const panelX=28, panelY=112, panelW=430, panelH=280;
-  drawPanel(g, panelX, panelY, panelW, panelH);
-
-  g.shadowBlur = 0; g.shadowOffsetX = 0; g.shadowOffsetY = 0;
-  g.font=`15px ${FONT_UI}`; 
-  g.fillStyle='#b7c3de';
-  let y = panelY + 26;
-  y = wrap(g, desc, panelX+14, y, panelW-28, 22);
-  y = wrap(g, sum,  panelX+14, y+10, panelW-28, 22);
-  g.fillStyle='#cfd9f3';
-  y = wrap(g, catchy, panelX+14, y+10, panelW-28, 22);
-
-  const tend = tendencyTextLines(vec);
-  g.fillStyle='#a9b4cc';
-  wrap(g, tend, panelX+14, y+10, panelW-28, 20);
-
-  // レーダー（右側）
-  drawRadarOnCanvas(g, 580, 300, 170, vec, colors);
-
-  // ハッシュタグプレート
-  g.fillStyle='rgba(12,18,34,0.9)'; 
-  g.fillRect(32, CSS_H-60, 280, 32);
-  g.strokeStyle='#2a3350'; g.lineWidth=1; g.strokeRect(32, CSS_H-60, 280, 32);
-  g.fillStyle='#dfe7ff'; g.font=`bold 14px ${FONT_UI}`;
-  g.fillText('#お絵かきスタイル診断', 46, CSS_H-39);
-
-  // コピーライト
-  g.font=`12px ${FONT_UI}`; g.fillStyle='#96a2bb';
-  g.fillText('© 2025 お絵かきスタイル診断 — situation edition', CSS_W-420, CSS_H-28);
-
-  // 出力（toBlob優先）
-  if (c.toBlob) {
-    c.toBlob((blob)=>{
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `oekaki_style_${Date.now()}.png`;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(()=> URL.revokeObjectURL(url), 1500);
-    }, 'image/png');
-  } else {
-    const url = c.toDataURL('image/png');
-    const a = document.createElement('a'); a.href=url; a.download= `oekaki_style_${Date.now()}.png`; a.click();
-  }
-}
-
-/* 角丸暗パネル（内側に微グラデ） */
-function drawPanel(g, x, y, w, h){
-  const r = 12;
-  g.save();
-  g.beginPath();
-  g.moveTo(x+r,y);
-  g.arcTo(x+w,y,x+w,y+h,r);
-  g.arcTo(x+w,y+h,x,y+h,r);
-  g.arcTo(x,y+h,x,y,r);
-  g.arcTo(x,y,x+w,y,r);
-  g.closePath();
-
-  const pg = g.createLinearGradient(x,y,x,y+h);
-  pg.addColorStop(0,'rgba(10,14,24,0.78)');
-  pg.addColorStop(1,'rgba(10,14,24,0.92)');
-  g.fillStyle = pg; g.fill();
-
-  g.strokeStyle='rgba(42,51,80,0.9)'; g.lineWidth=1;
-  g.stroke();
-  g.restore();
-}
-
-/* CJK折り返し（絵文字OKの1文字評価） */
-function wrap(g, text, x, y, maxWidth, lh){
-  const chars = [...String(text)]; // 絵文字も崩れにくい
-  let line = '';
-  for (let i=0;i<chars.length;i++){
-    const test = line + chars[i];
-    if (g.measureText(test).width > maxWidth){
-      g.fillText(line, x, y);
-      y += lh;
-      line = chars[i];
-    } else {
-      line = test;
-    }
-  }
-  if(line) g.fillText(line, x, y);
-  return y;
-}
-
-/* PNG用レーダー（キャンバス） */
-function drawRadarOnCanvas(g,cx,cy,r,vec,colors){
-  const v = Array.isArray(vec) && vec.length===5 ? vec.map(x=>(+x||0)) : [0,0,0,0,0];
-  const ang = (function(){ const a=[]; const base=-Math.PI/2, step=2*Math.PI/10; for(let i=0;i<10;i++) a.push(base+i*step); return a; })();
-
-  // grid
-  g.save();
-  g.strokeStyle='#2a3454'; g.lineWidth=1;
-  for(let k=1;k<=5;k++){
-    g.beginPath();
-    for(let i=0;i<10;i++){
-      const rr=r*k/5, x=cx+Math.cos(ang[i])*rr, y=cy+Math.sin(ang[i])*rr;
-      if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
-    }
-    g.closePath(); g.stroke();
-  }
-
-  // labels
-  const AXPOS=["直感","即興","感情","勢い","抽象"], AXNEG=["理屈","計画","理性","完璧","具体"];
-  g.fillStyle='#cfe1ff'; g.font='11px "Noto Sans JP",system-ui,sans-serif';
-  for(let i=0;i<10;i++){
-    const x=cx+Math.cos(ang[i])*r, y=cy+Math.sin(ang[i])*r;
-    const ax=i%5, txt=(i<5)?AXPOS[ax]:AXNEG[ax];
-    g.fillText(txt, x+(Math.cos(ang[i])>0?6:-22), y+(Math.sin(ang[i])>0?14:-6));
-  }
-
-  // polygon
-  const t = v.map(val=> (val===0 ? 0.5 : (val+5)/10) );
-  const ring=[]; for(let ax=0;ax<5;ax++) ring.push(0.5 + (t[ax]-0.5)*EXAGGERATE);
-  for(let ax=0;ax<5;ax++) ring.push(0.5 + ((1-t[ax])-0.5)*EXAGGERATE);
-  const clamp = ring.map(x=> Math.max(0,Math.min(1,x)));
-  const smooth = (function(arr,a){ const n=arr.length,out=new Array(n); for(let i=0;i<n;i++){ const p=arr[(i-1+n)%n],c=arr[i],nxt=arr[(i+1)%n]; const m=(p+c+nxt)/3; out[i]=c*(1-a)+m*a; } return out; })(clamp, SMOOTH_ALPHA);
-
-  g.beginPath();
-  for(let i=0;i<10;i++){
-    const rr=r*smooth[i], x=cx+Math.cos(ang[i])*rr, y=cy+Math.sin(ang[i])*rr;
-    if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
-  }
-  g.closePath();
-  const avg = (Math.abs(v[0])+Math.abs(v[1])+Math.abs(v[2])+Math.abs(v[3])+Math.abs(v[4]))/5;
-  const fillOpacity = 0.22 + 0.5*(avg/5);
-  g.fillStyle=hexToRgba(colors[0], fillOpacity); g.fill();
-  g.strokeStyle=colors[1]; g.lineWidth=2.2; g.stroke();
-
-  // top1 marker
-  const top1 = (function(){
-    const idx = [0,1,2,3,4].sort((a,b)=> Math.abs(v[b]) - Math.abs(v[a]) )[0];
-    const sign = Math.sign(v[idx]); return {idx: sign>=0?idx:idx+5, ax:idx, sign};
-  })();
-  const aCenter = ang[top1.idx];
-  const rr=r*smooth[top1.idx];
-  const mx=cx+Math.cos(aCenter)*rr, my=cy+Math.sin(aCenter)*rr;
-  g.fillStyle = top1.idx<5? AXES[top1.ax].posHue : AXES[top1.ax].negHue;
-  g.beginPath(); g.arc(mx,my,4.5,0,Math.PI*2); g.fill();
-  g.strokeStyle='#0b0d12'; g.lineWidth=1; g.beginPath(); g.arc(mx,my,4.5,0,Math.PI*2); g.stroke();
-
-  // MAX外周●（同率トップも全部）
-  const strongest = (function(vec){
-    const mags = vec.map(x=>Math.abs(x)); const maxv = Math.max.apply(null,mags); const res=[];
-    for(let ax=0;ax<5;ax++){ if(Math.abs(vec[ax])===maxv){ res.push(vec[ax]>=0?ax:ax+5); } } return res;
-  })(v);
-  g.fillStyle='#ffffff'; g.strokeStyle='#0b0d12'; g.lineWidth=1;
-  strongest.forEach(ii=>{
-    const a=ang[ii], x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
-    g.beginPath(); g.arc(x,y,3.6,0,Math.PI*2); g.fill();
-    g.beginPath(); g.arc(x,y,3.6,0,Math.PI*2); g.stroke();
-  });
-
-  g.restore();
-}
-
+/* ========= ユーティリティ ========= */
 function tendencyTextLines(vec){
   function phrase(v,pos,neg){
     if(v>=3) return `強い${pos}`;
@@ -734,6 +528,26 @@ function tendencyTextLines(vec){
     `感情/理性=${phrase(vec[2],"感情","理性")}｜`+
     `勢い/完璧=${phrase(vec[3],"勢い","完璧")}｜`+
     `抽象/具体=${phrase(vec[4],"抽象","具体")}`;
+}
+function tendencyText(vec){
+  const p = tendencyTextLines(vec).replace(/^傾向まとめ：/,'');
+  return `👀 傾向まとめ：<br>${p}`;
+}
+function catchyLine(vec){
+  const top = [0,1,2,3,4].sort((a,b)=> Math.abs(vec[b]) - Math.abs(vec[a]) );
+  const k = top[0];
+  const side = vec[k]>=0 ? AXES[k].pos : AXES[k].neg;
+  const flair = vec[k]>=0 ? "⚡" : "⛏";
+  const noun = ["回路","航路","軌跡","律動","質量"][k];
+  return `「${side}${flair}」が主旋律。手は${noun}を辿りながら、あなたの像を結ぶ。`;
+}
+
+/* ========= 結果のテーマ＆描画呼び出し ========= */
+function drawAndTheme(vec){
+  // themeはfinish内で決定しているため、この関数は未使用。必要なら拡張。
+}
+function drawAfter(vec, colors){
+  drawRadar(vec, colors);
 }
 </script>
 </body>
