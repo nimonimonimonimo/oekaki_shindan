@@ -289,28 +289,26 @@ function finish(){
   applyTheme(colors);
 
   el('result').innerHTML = `
-    <div class="grid grid2">
-      <div class="frame">
-        <div class="big"><span class="slab">${escapeHtml(uname)}</span> は <span class="badge">${baseName}${abs.suffix}</span></div>
-        <div id="caps" class="tags"></div>
-        <div id="summary" class="muted"></div>
-        <div class="hr"></div>
-        <div id="tend" class="note"></div>
-        <div class="hr"></div>
-        <div id="materialHint" class="note"></div>
-        <div class="small" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-          <button type="button" class="btn secondary" onclick="goHome()">最初の画面へ戻る</button>
-          <button type="button" class="btn secondary" id="redo">回答を見直す</button>
-          <button type="button" class="btn secondary" id="copytxt">シェア文をコピー</button>
-          <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
-        </div>
-      </div>
-      <div class="frame canvaswrap">
-        <div id="chartBox">
-          <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
-        </div>
-      </div>
+  <div class="frame canvaswrap">
+    <div id="chartBox">
+      <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
     </div>
+  </div>
+  <div class="frame">
+    <div class="big"><span class="slab">${escapeHtml(uname)}</span> は <span class="badge">${baseName}${abs.suffix}</span></div>
+    <div id="caps" class="tags"></div>
+    <div id="summary" class="muted"></div>
+    <div class="hr"></div>
+    <div id="tend" class="note"></div>
+    <div class="hr"></div>
+    <div id="materialHint" class="note"></div>
+    <div class="small" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn secondary" onclick="goHome()">最初の画面へ戻る</button>
+      <button type="button" class="btn secondary" id="redo">回答を見直す</button>
+      <button type="button" class="btn secondary" id="copytxt">シェア文をコピー</button>
+      <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
+    </div>
+  </div>
   `;
   el('result').style.display = 'block';
 
@@ -637,3 +635,4 @@ finish = function(){
 </script>
 </body>
 </html>
+
