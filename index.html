@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>お絵かきスタイル診断｜完全版（failsafe/小さめPNG）</title>
+<meta name="theme-color" content="#0b0d12">
+<!-- OGP -->
+<meta property="og:title" content="お絵かきスタイル診断">
+<meta property="og:description" content="25問で創作スタイルを診断。トップ1強調＋MAX外周ドットのレーダー付き。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  --bg:#0b0d12; --panel:#111624; --ink:#e8edf8; --muted:#a4afc7;
+  --edge:#232c44; --t1:#88a0ff; --t2:#ff6ad5; --glow:0 10px 30px rgba(136,160,255,.25);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;color:var(--ink);
+background:radial-gradient(1200px 800px at 80% -10%,#1a1f2d 0%,#0b0d12 55%) fixed;}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 16px 120px}
+.brand{font-weight:900;letter-spacing:.02em;font-size:clamp(22px,4vw,36px)}
+.sub{color:var(--muted);font-size:15px;margin-top:8px}
+.muted{color:var(--muted)}
+.card{background:linear-gradient(180deg,#14192a 0%,#0f1421 100%);border:1px solid var(--edge);border-radius:16px;padding:20px;margin:20px 0;box-shadow:0 12px 30px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.03)}
+.btn{border:0;border-radius:12px;padding:14px 20px;font-weight:800;cursor:pointer;min-width:160px;min-height:48px}
+.primary{background:linear-gradient(180deg,var(--t1),var(--t2));color:#fff;box-shadow:var(--glow);font-size:16px}
+.primary:active{transform:translateY(1px)}
+.secondary{background:#171e32;color:#dfe6ff;border:1px solid var(--edge)}
+.input{margin:20px 0}
+.input input{width:100%;background:#0b0f1b;border:1px solid var(--edge);border-radius:10px;padding:12px;color:#e8ecff;outline:none;font-size:16px}
+.progress{height:8px;background:#151a25;border:1px solid var(--edge);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--t1),var(--t2));transition:width .2s}
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.qnum{display:inline-block;background:#1a2136;border:1px solid var(--edge);color:#cfd8ff;padding:2px 8px;border-radius:999px;font-size:12px;margin-right:8px}
+.qtext{font-size:18px;font-weight:700}
+.navs{display:flex;gap:8px}
+.navs .btn{padding:8px 12px}
+.navs .btn[disabled]{opacity:.5;cursor:not-allowed}
+.choices{display:grid;gap:10px;margin-top:12px}
+@media(min-width:680px){.choices{grid-template-columns:1fr 1fr 1fr}}
+.choice{border:1px solid var(--edge);background:#12192e;color:#e8ecff;padding:14px 12px;border-radius:12px;font-weight:800;cursor:pointer;text-align:left}
+.choice:hover{border-color:#39456a;transform:translateY(-1px)}
+.result{display:none;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.big{font-size:22px;font-weight:900}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.tag{font-size:11px;background:#1a2239;border:1px solid #2a3350;color:#d4ddff;padding:3px 8px;border-radius:999px}
+.badge{display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;background:linear-gradient(90deg,var(--t1),var(--t2));color:#0b0d12;font-weight:900;margin-left:8px}
+.slab{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#bcd0ff}
+.canvaswrap{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+#chartBox{background:#0c1222;border:1px solid var(--edge);border-radius:12px;padding:14px;position:relative;overflow:hidden}
+.small{font-size:12px;color:#a9b4cc}
+.note{font-size:13px;color:#cfe1ff;background:#0e1424;border:1px solid #263050;border-radius:10px;padding:10px}
+.hr{height:1px;background:linear-gradient(90deg,transparent,#2b3452,transparent);margin:10px 0}
+.frame{border-radius:16px;padding:16px;background:radial-gradient(700px 240px at 0% 0%,rgba(255,255,255,.03),transparent 60%),linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.00));border:1px solid #2b3555;box-shadow:0 12px 34px rgba(0,0,0,.35)}
+header{text-align:center;margin-bottom:30px}
+footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align:center}
+.grid{display:grid;gap:12px}
+.grid2{grid-template-columns:1.2fr 1fr}
+@media(min-width:980px){#result .grid2{display:grid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">お絵かきスタイル診断</div>
+    <div class="sub">25問のシチュエーションから、あなたの創作スタイルを診断。</div>
+  </header>
+
+  <!-- Intro -->
+  <div id="intro" class="card" style="text-align:center">
+    <p>まずは名前（またはハンドルネーム）を入力してください。</p>
+    <div class="input"><input id="uname" placeholder="例：ニモニム"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button type="button" class="btn secondary" id="aboutbtn" onclick="toggleAbout()">診断の説明</button>
+      <button type="button" class="btn primary" id="startbtn" onclick="startQuiz()">診断を始める</button>
+    </div>
+    <div id="about" class="small" style="display:none;margin-top:10px">
+      5つの軸（直感/理屈・即興/計画・感情/理性・勢い/完璧・抽象/具体）を3択×25問で可視化します。
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="quizwrap" style="display:none">
+    <div class="card">
+      <div class="qhead">
+        <div><span id="qnum" class="qnum">Q1/25</span><span class="small">直感で答えてOK</span></div>
+        <div class="navs">
+          <button type="button" class="btn secondary" id="backbtn" onclick="goBack()">← 戻る</button>
+          <button type="button" class="btn secondary" id="homebtn" onclick="goHome()">ホーム</button>
+        </div>
+      </div>
+      <div class="progress"><div id="bar"></div></div>
+    </div>
+    <div class="card">
+      <div class="qtext" id="qtext">…</div>
+      <div id="choices" class="choices"></div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="result" class="result"></div>
+</div>
+<footer><p>© 2025 お絵かきスタイル診断 — situation edition</p></footer>
+
+<!-- ===== JSはボディ末尾に置く：起動安定のため ===== -->
+<script>
+'use strict';
+
+/* ========= failsafe：グローバル関数 + addEventListener の二重バインド ========= */
+let uname="", idx=0, answers=[];
+const el = id => document.getElementById(id);
+function toggleAbout(){ const a=el('about'); a.style.display=(a.style.display==='none')?'block':'none'; }
+function startQuiz(){
+  const v=(el('uname')?.value||"").trim() || "ゲスト";
+  uname=v; el('intro').style.display='none'; el('quizwrap').style.display='block';
+  idx=0; answers.length=0; renderQ();
+}
+function goHome(){ el('quizwrap').style.display='none'; el('intro').style.display='block'; }
+function goBack(){ if(idx>0){ idx--; renderQ(true); } }
+window.startQuiz = startQuiz; window.toggleAbout = toggleAbout; window.goHome = goHome; window.goBack = goBack;
+
+(function bindOnce(){
+  const s=el('startbtn'), a=el('aboutbtn'), h=el('homebtn'), b=el('backbtn'), n=el('uname');
+  try{
+    if(s) s.addEventListener('click', startQuiz);
+    if(a) a.addEventListener('click', toggleAbout);
+    if(h) h.addEventListener('click', goHome);
+    if(b) b.addEventListener('click', goBack);
+    if(n) n.addEventListener('keydown', e=>{ if(e.key==='Enter') startQuiz(); });
+  }catch(e){ console.error('binding failed', e); }
+  setTimeout(()=>{ if(s && !s.onclick) s.onclick = startQuiz; }, 150);
+})();
+
+/* ========= 定数 ========= */
+const EXAGGERATE = 1.6;
+const SMOOTH_ALPHA = 0.45;
+
+const AXES = [
+  {key:"intuition", pos:"直感", neg:"理屈", posHue:"#ff9b6b", negHue:"#7fb4ff"},
+  {key:"improv",    pos:"即興", neg:"計画", posHue:"#ffd36b", negHue:"#88a0ff"},
+  {key:"emotion",   pos:"感情", neg:"理性", posHue:"#ff7ea6", negHue:"#9cd0ff"},
+  {key:"momentum",  pos:"勢い", neg:"完璧", posHue:"#a0ffd3", negHue:"#b5c7ff"},
+  {key:"abstract",  pos:"抽象", neg:"具体", posHue:"#c6a6ff", negHue:"#ff8a6b"}
+];
+
+const Q = [
+  {axis:0,q:"電車の待ち時間にスケッチブックを開いたら？",c:["何も考えず線を走らせる","周りの人や風景を観察して描く","ざっくり構図を決めてから描く"]},
+  {axis:0,q:"新しいキャラを考えるとき",c:["頭に浮かんだイメージを一気に描く","設定や世界観を整理してから描く","ラフで探りながら進める"]},
+  {axis:0,q:"配色を決めるとき",c:["今の気分で選ぶ","色相環や補色で選ぶ","どちらも混ぜる"]},
+  {axis:0,q:"知らない画材を渡されたら？",c:["とにかく試す","まず使い方を調べる","少し調べてから試す"]},
+  {axis:0,q:"描きながらの気持ち",c:["ノリで手が動く","次の工程を考えながら進める","半々くらい"]},
+  {axis:1,q:"友達に1週間後の誕生日イラストを頼まれたら？",c:["その日のうちに描く","毎日少しずつ進める","気分で変える"]},
+  {axis:1,q:"ラフの扱いは？",c:["ほぼしない","きっちり描く","形だけ軽く描く"]},
+  {axis:1,q:"疲れてても描くなら？",c:["勢いで描き始める","休んでから描く","気分次第"]},
+  {axis:1,q:"完成形のイメージは？",c:["描きながら見つける","最初に決める","ラフでぼんやり想像"]},
+  {axis:1,q:"締切が明日なのに進んでない！",c:["徹夜で一気に描く","計画通り進める","状況に合わせて調整"]},
+  {axis:2,q:"失恋した直後に描くとしたら？",c:["泣きながら感情をぶつける","冷静に構図やテーマにする","両方混ぜる"]},
+  {axis:2,q:"映画の感想を絵にするなら？",c:["感情を抽象的に描く","ストーリー要素を整理して描く","半々に入れる"]},
+  {axis:2,q:"気分が沈んでいる日",c:["ダークな絵を描く","冷静な線画練習をする","日による"]},
+  {axis:2,q:"新しいテーマを決めるとき",c:["体験や感情から選ぶ","知識や理論から選ぶ","その時次第"]},
+  {axis:2,q:"色を塗る瞬間",c:["心で決める","理で決める","混ぜる"]},
+  {axis:3,q:"SNSに上げるとき",c:["ラフでも出す","完璧に仕上げてから出す","状況で決める"]},
+  {axis:3,q:"作品の最後の1時間",c:["勢いで仕上げる","細部を詰める","そこそこ整える"]},
+  {axis:3,q:"失敗に気づいたら？",c:["そのまま突っ走る","全部やり直す","部分的に修正"]},
+  {axis:3,q:"作業時間が予定を超えたとき",c:["新しい作品に切り替える","最後まで仕上げる","様子を見て判断"]},
+  {axis:3,q:"公開前に見返す？",c:["見返さず投稿","細部までチェック","軽く確認"]},
+  {axis:4,q:"美術館で強く心を動かされたとき",c:["色や雰囲気を描く","人物や物語を描く","両方"]},
+  {axis:4,q:"街を歩いていて描きたくなったら？",c:["光や空気感を描く","看板や人を描く","混ぜる"]},
+  {axis:4,q:"タイトルをつけるなら？",c:["抽象語（永遠・虚無）","具体語（夏の帰り道）","両方使う"]},
+  {axis:4,q:"思い出を描くなら？",c:["雰囲気や空気感","一緒にいた人や物","両方"]},
+  {axis:4,q:"初対面の人をテーマにするなら？",c:["印象やオーラを描く","顔や服装を描く","両方"]}
+];
+
+/* ========= タイプ名・文章 ========= */
+const TYPE_NAMES_4 = {
+  "1111":"烈火のスケッチャー","1110":"幻彩の調律者","1101":"混沌のストラテジスト","1100":"静寂の構築士",
+  "1011":"流星のドラフター","1010":"夢幻の構築者","1001":"稲妻の戦略家","1000":"未来の錬成師",
+  "0111":"激情の分析者","0110":"静謐の解剖者","0101":"冷光のストライカー","0100":"秩序の守護者",
+  "0011":"劇場の設計士","0010":"静かな錬金術師","0001":"思考の航海士","0000":"永遠の製図師"
+};
+const TYPE_DESC_4 = {
+  "1111":"衝動と色で世界を切り裂く瞬発型。仕上げより“今”を刻むことに価値。",
+  "1110":"感覚を信じつつ磨き上げる調律タイプ。直感と完成度の両立。",
+  "1101":"勢いにロジックを潜ませる奇襲型。雑然に見えて設計済み。",
+  "1100":"静かな集中で直感を結晶化。寡黙に積み上げる構築派。",
+  "1011":"一瞬の情熱を下絵に落とす流星タイプ。粗さは推進力。",
+  "1010":"情動を積層し物語に変える構築者。遅くても深い。",
+  "1001":"直感を即座に戦術化。決断が速く構成が鋭い。",
+  "1000":"直感を冷静に磨き長期戦で勝つ。王道の完成度。",
+  "0111":"心の熱を分析で増幅する科学派。爆発と検証の共存。",
+  "0110":"感情を細部へ分解して描く観察者。静かに強い。",
+  "0101":"理で瞬発するスナイパー。線と構図で切り取る。",
+  "0100":"秩序の守護者。丁寧で破綻なし、堅牢な完成主義。",
+  "0011":"感情を脚本通りに演出。見せ場を作る舞台監督型。",
+  "0010":"心を沈め構造へ還元する錬金術。静謐に積む。",
+  "0001":"理性で荒波を進む開拓者。判断が淡々と速い。",
+  "0000":"構造の果てを追う設計者。極限まで磨く終着点志向。"
+};
+
+/* ========= 質問描画 ========= */
+function renderQ(){
+  const item = Q[idx];
+  el('qtext').textContent = item.q;
+  el('qnum').textContent = `Q${idx+1}/${Q.length}`;
+  el('bar').style.width = (idx/Q.length*100) + '%';
+  const backbtn = el('backbtn'); if(backbtn) backbtn.disabled = (idx===0);
+
+  const box = el('choices'); box.innerHTML = '';
+  item.c.forEach((label,i)=>{
+    const b = document.createElement('button');
+    b.className = 'choice'; b.type='button'; b.textContent = label;
+    if(answers[idx]===i){ b.style.borderColor='#5b6ca0'; b.style.boxShadow='0 0 0 2px rgba(136,160,255,.25)'; }
+    b.addEventListener('click', ()=>{ answers[idx]=i; idx++; (idx<Q.length)?renderQ():finish(); });
+    box.appendChild(b);
+  });
+}
+
+/* ========= 診断の集計＆結果表示 ========= */
+function finish(){
+  el('bar').style.width = '100%';
+  el('quizwrap').style.display = 'none';
+
+  const vec = [0,0,0,0,0]; // 各軸に [-5..5]
+  for(let i=0;i<Q.length;i++){
+    const s = answers[i]===0 ? 1 : answers[i]===1 ? -1 : 0;
+    vec[Q[i].axis] += s;
+  }
+  const sig4 = vec.slice(0,4).map(v=> v>=1?1:0).join("");
+  const abs = suffixForAbstract(vec[4]);
+  const baseName = TYPE_NAMES_4[sig4] || "未定義タイプ";
+  const baseDesc = TYPE_DESC_4[sig4] || "";
+  const colors = themeFor(sig4, abs.flavor);
+  applyTheme(colors);
+
+  el('result').innerHTML = `
+    <div class="grid grid2">
+      <div class="frame">
+        <div class="big"><span class="slab">${escapeHtml(uname)}</span> は <span class="badge">${baseName}${abs.suffix}</span></div>
+        <div id="caps" class="tags"></div>
+        <div id="summary" class="muted"></div>
+        <div class="hr"></div>
+        <div id="tend" class="note"></div>
+        <div class="hr"></div>
+        <div id="materialHint" class="note"></div>
+        <div class="small" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn secondary" onclick="goHome()">最初の画面へ戻る</button>
+          <button type="button" class="btn secondary" id="redo">回答を見直す</button>
+        </div>
+      </div>
+      <div class="frame canvaswrap">
+        <div id="chartBox">
+          <svg id="radar" width="360" height="320" viewBox="0 0 360 320" aria-label="レーダーチャート"></svg>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button type="button" class="btn primary" id="saveimg">結果画像を保存</button>
+          <button type="button" class="btn secondary" id="copytxt">シェア文をコピー</button>
+          <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
+          <p class="small">PNG保存→Xで画像を添付。</p>
+        </div>
+      </div>
+    </div>
+  `;
+  el('result').style.display = 'block';
+
+  // タグ群
+  const caps = el('caps');
+  AXES.forEach((ax,i)=>{
+    const v = vec[i];
+    const label = v>1? ax.pos : v<-1? ax.neg : "中庸";
+    const t = document.createElement('span');
+    t.className='tag'; t.textContent = `${ax.pos}↔${ax.neg}：${label}（${v}）`;
+    caps.appendChild(t);
+  });
+
+  const sum = [
+    `直感/理屈：${vec[0] >= 2 ? "直感寄り" : vec[0] <= -2 ? "理屈寄り" : "バランス型"}`,
+    `即興/計画：${vec[1] >= 2 ? "即興派" : vec[1] <= -2 ? "計画派" : "状況対応派"}`,
+    `感情/理性：${vec[2] >= 2 ? "感情優位" : vec[2] <= -2 ? "理性優位" : "中庸"}`,
+    `勢い/完璧：${vec[3] >= 2 ? "勢い重視" : vec[3] <= -2 ? "完璧主義" : "要点仕上げ"}`,
+    `抽象/具体：${vec[4] >= 2 ? "抽象志向" : vec[4] <= -2 ? "具体志向" : "両立派"}`
+  ].join("｜");
+  const desc = `${baseDesc} ${abs.extra}`;
+  const catchy = catchyLine(vec);
+  el('summary').innerHTML = `<p class="muted">${desc}</p><p class="muted">${sum}</p><p class="muted">${catchy}</p>`;
+  el('tend').innerHTML = tendencyText(vec);
+  el('materialHint').innerHTML = `<span class="small">おまけ：</span>アナログ/デジタルの傾向ヒント → ${materialHint5(sig4, vec[4])}`;
+
+  drawRadar(vec, colors);
+
+  el('redo').addEventListener('click', ()=>{ el('result').style.display='none'; el('quizwrap').style.display='block'; idx = Q.length-1; renderQ(true); });
+  el('saveimg').addEventListener('click', ()=> saveImage(uname, baseName+abs.suffix, vec, colors, desc, sum, catchy));
+  el('copytxt').addEventListener('click', ()=> copyShare(uname, baseName+abs.suffix, sum));
+  el('tweetbtn').addEventListener('click', ()=> openTweet(uname, baseName+abs.suffix, sum));
+}
+
+/* ========= 文章/テーマ/色 ========= */
+function suffixForAbstract(v){
+  if(v>=2) return {suffix:"（抽象志向）", extra:"空気・リズム・余白の設計が強み。", flavor:"abstract"};
+  if(v<=-2) return {suffix:"（具体志向）", extra:"モチーフの明確さ・情報設計が武器。", flavor:"concrete"};
+  return {suffix:"（抽象×具体バランス）", extra:"雰囲気と情報を両立できる調停者。", flavor:"balanced"};
+}
+function themeFor(sig4, absFlavor){
+  const baseMap = {
+    "1111":["#ff8a6b","#ffd36b"], "1110":["#ff9bd4","#ffd36b"], "1101":["#8a7bff","#ff6ad5"], "1100":["#7ec8ff","#88a0ff"],
+    "1011":["#ffb36b","#88ff9b"], "1010":["#c6a6ff","#88a0ff"], "1001":["#88a0ff","#5df0ff"], "1000":["#a0ffd3","#88a0ff"],
+    "0111":["#ff7ea6","#88ffc6"], "0110":["#9cd0ff","#cfe1ff"], "0101":["#88f0ff","#b3e2ff"], "0100":["#b5c7ff","#d7e0ff"],
+    "0011":["#ffd36b","#ff8ad6"], "0010":["#d0d6ff","#b0b8ff"], "0001":["#a8b6ff","#88a0ff"], "0000":["#d0d6ff","#b0b8ff"]
+  }[sig4] || ["#8a7bff","#ff6ad5"];
+  if(absFlavor==="abstract") return ["#9db8ff","#88a0ff"];
+  if(absFlavor==="concrete") return ["#ffb36b","#ff8a6b"];
+  return baseMap;
+}
+function applyTheme(colors){
+  const [c1,c2]=colors;
+  document.documentElement.style.setProperty('--t1', c1);
+  document.documentElement.style.setProperty('--t2', c2);
+  document.documentElement.style.setProperty('--glow', `0 10px 30px ${hexToRgba(c1,.25)}`);
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+function copyShare(uname, title, sum){
+  const text = `${uname}は「${title}」。\n${sum}\n#お絵かきスタイル診断`;
+  navigator.clipboard.writeText(text).then(()=> alert("シェア文をコピーしました！")).catch(()=> alert("コピーできませんでした…"));
+}
+function openTweet(uname, title, sum){
+  const text = `${uname}は「${title}」。\n${sum}\n#お絵かきスタイル診断`;
+  const url = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+  window.open(url, "_blank");
+}
+function materialHint5(sig4, absV){
+  const base = {
+    "1111":"アナログ: ガッシュ/アクリル ｜ デジタル: Procreate",
+    "1110":"アナログ: ガッシュ ｜ デジタル: Procreate/CSP",
+    "1101":"アナログ: アクリル ｜ デジタル: Clip Studio",
+    "1100":"アナログ: アクリル厚塗り ｜ デジタル: Photoshop",
+    "1011":"アナログ: パステル/オイルパステル ｜ デジタル: Procreate",
+    "1010":"アナログ: アクリル/油彩 ｜ デジタル: CSP/Photoshop",
+    "1001":"アナログ: アクリル ｜ デジタル: Illustrator + CSP",
+    "1000":"アナログ: 油彩/アクリル ｜ デジタル: Photoshop",
+    "0111":"アナログ: インク＋マーカー ｜ デジタル: CSP(線画)",
+    "0110":"アナログ: 色鉛筆/鉛筆 ｜ デジタル: CSP/SAI",
+    "0101":"アナログ: インク ｜ デジタル: Illustrator/ベクター",
+    "0100":"アナログ: 定着系(色鉛筆/油彩) ｜ デジタル: Photoshop",
+    "0011":"アナログ: コラージュ/演出系 ｜ デジタル: AfterEffects",
+    "0010":"アナログ: 色鉛筆/鉛筆 ｜ デジタル: CSP",
+    "0001":"アナログ: インク＋設計 ｜ デジタル: Illustrator",
+    "0000":"アナログ: 油彩/定着系 ｜ デジタル: Photoshop/Illustrator"
+  }[sig4] || "アナログ/デジタル：自由に選択";
+  const abs = absV>=2 ? "｜抽象：水彩/インク/テクスチャ遊び" : absV<=-2 ? "｜具体：インク線画/CSPで塗り" : "｜抽象×具体：どちらもOK";
+  return base + abs;
+}
+function tendencyText(vec){
+  function phrase(v,pos,neg){
+    if(v>=3) return `強い${pos}🔥`;
+    if(v===2) return `${pos}寄り⬆`;
+    if(v===1) return `${pos}やや優勢↗`;
+    if(v===0) return `バランス⚖`;
+    if(v===-1) return `${neg}優勢`;
+    if(v===-2) return `${neg}寄り`;
+    return `${neg}強め`;
+  }
+  const p = [
+    `アイデア源泉：${phrase(vec[0],"直感","理屈")}`,
+    `進め方　　　：${phrase(vec[1],"即興","計画")}`,
+    `心のよりどころ：${phrase(vec[2],"感情","理性")}`,
+    `仕上げ方　　：${phrase(vec[3],"勢い","完璧")}`,
+    `モチーフ傾向：${phrase(vec[4],"抽象","具体")}`
+  ].join("／");
+  return `👀 傾向まとめ：<br>${p}`;
+}
+function catchyLine(vec){
+  const top = [0,1,2,3,4].sort((a,b)=> Math.abs(vec[b]) - Math.abs(vec[a]) );
+  const k = top[0];
+  const side = vec[k]>=0 ? AXES[k].pos : AXES[k].neg;
+  const flair = vec[k]>=0 ? "⚡" : "⛏";
+  const noun = ["回路","航路","軌跡","律動","質量"][k];
+  return `「${side}${flair}」が主旋律。手は${noun}を辿りながら、あなたの像を結ぶ。`;
+}
+
+/* ========= レーダー（スポーク無し・トップ1マーカー＋MAX外周●） ========= */
+function angles10(){ const a=[]; const base=-Math.PI/2, step=2*Math.PI/10; for(let i=0;i<10;i++) a.push(base+i*step); return a; }
+function exaggerate01(x){ const y = 0.5 + (x-0.5)*EXAGGERATE; return Math.max(0, Math.min(1, y)); }
+function smoothRing(arr, alpha=0.45){
+  const n = arr.length; const out = new Array(n);
+  for(let i=0;i<n;i++){
+    const prev = arr[(i-1+n)%n], cur = arr[i], next = arr[(i+1)%n];
+    const m = (prev + cur + next)/3;
+    out[i] = cur*(1-alpha) + m*alpha;
+  }
+  return out;
+}
+function dominantTop1(vec){
+  const idx = [0,1,2,3,4].sort((a,b)=> Math.abs(vec[b]) - Math.abs(vec[a]) )[0];
+  const sign = Math.sign(vec[idx]);
+  const i = sign>=0? idx : idx+5;
+  return {idx:i, ax:idx, sign:sign, mag:Math.abs(vec[idx])};
+}
+function strongestAxes(vec){
+  const mags = vec.map(v=>Math.abs(v));
+  const maxv = Math.max.apply(null, mags);
+  const res = [];
+  for(let ax=0; ax<5; ax++){
+    if(Math.abs(vec[ax]) === maxv){
+      const i = vec[ax] >= 0 ? ax : ax+5;
+      res.push(i);
+    }
+  }
+  return res;
+}
+function drawSectorGlow(svg, cx, cy, r, a0, a1, color){
+  const x0 = cx + Math.cos(a0)*r, y0 = cy + Math.sin(a0)*r;
+  const x1 = cx + Math.cos(a1)*r, y1 = cy + Math.sin(a1)*r;
+  const large = (a1-a0)%(2*Math.PI) > Math.PI ? 1 : 0;
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`);
+  path.setAttribute('fill', color);
+  path.setAttribute('fill-opacity','0.22');
+  svg.appendChild(path);
+}
+function avgAbs(vec){ return (Math.abs(vec[0])+Math.abs(vec[1])+Math.abs(vec[2])+Math.abs(vec[3])+Math.abs(vec[4]))/5; }
+
+function drawRadar(vec, colors){
+  const svg = el('radar');
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const W=360,H=320,cx=180,cy=170,r=120;
+  const ang = angles10();
+
+  // grid polygons
+  for(let k=1;k<=5;k++){
+    const rr = r*(k/5);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    const pts = ang.map(a=>`${cx+Math.cos(a)*rr},${cy+Math.sin(a)*rr}`).join(' ');
+    poly.setAttribute('points', pts);
+    poly.setAttribute('fill','none');
+    poly.setAttribute('stroke','#2a3454');
+    poly.setAttribute('stroke-opacity','0.6');
+    svg.appendChild(poly);
+  }
+  // labels（正/負で10箇所）
+  const labelsPos = AXES.map(a=>a.pos);
+  const labelsNeg = AXES.map(a=>a.neg);
+  for(let i=0;i<10;i++){
+    const a = ang[i];
+    const x = cx+Math.cos(a)*r, y = cy+Math.sin(a)*r;
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x + (Math.cos(a)>0?6:-6));
+    t.setAttribute('y', y + (Math.sin(a)>0?16:-6));
+    t.setAttribute('text-anchor', Math.cos(a)>0.2?'start':Math.cos(a)<-0.2?'end':'middle');
+    t.setAttribute('fill', '#cfe1ff');
+    t.setAttribute('font-size','11');
+    t.setAttribute('font-weight','600');
+    const ax = i%5;
+    t.textContent = (i<5) ? labelsPos[ax] : labelsNeg[ax];
+    svg.appendChild(t);
+  }
+
+  // 値→半径（0..1）へ、誇張＋平滑
+  const t = vec.map(v=> (v===0 ? 0.5 : (v+5)/10) );
+  const rad = [];
+  for(let ax=0;ax<5;ax++) rad.push(exaggerate01(t[ax]));     // pos 0..4
+  for(let ax=0;ax<5;ax++) rad.push(exaggerate01(1 - t[ax])); // neg 5..9
+  const radSm = smoothRing(rad, SMOOTH_ALPHA);
+
+  const avg = avgAbs(vec);
+  const fillOpacity = 0.22 + 0.5*(avg/5);
+  const pts = radSm.map((val,i)=>{
+    const rr = r*val; const a = ang[i];
+    return `${cx+Math.cos(a)*rr},${cy+Math.sin(a)*rr}`;
+  }).join(' ');
+
+  const under = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  under.setAttribute('points', pts);
+  under.setAttribute('fill', colors[0]);
+  under.setAttribute('fill-opacity', String(Math.min(0.28, fillOpacity*0.6)));
+  svg.appendChild(under);
+
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points', pts);
+  poly.setAttribute('fill', colors[0]);
+  poly.setAttribute('fill-opacity', String(fillOpacity));
+  poly.setAttribute('stroke', colors[1]);
+  poly.setAttribute('stroke-opacity','0.98');
+  poly.setAttribute('stroke-width','2.6');
+  svg.appendChild(poly);
+
+  // セクターグロー＆トップ1データ位置マーカー
+  const top1 = dominantTop1(vec);
+  const topAngle = ang[top1.idx];
+  const hue = (top1.idx<5)? AXES[top1.ax].posHue : AXES[top1.ax].negHue;
+  drawSectorGlow(svg, cx, cy, r*1.03, topAngle-(Math.PI/10)*0.9, topAngle+(Math.PI/10)*0.9, hexToRgba(hue,0.26));
+  const rr = r*radSm[top1.idx];
+  const mx = cx+Math.cos(topAngle)*rr, my = cy+Math.sin(topAngle)*rr;
+  const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  dot.setAttribute('cx', mx); dot.setAttribute('cy', my);
+  dot.setAttribute('r', 5); dot.setAttribute('fill', hue);
+  dot.setAttribute('fill-opacity', '0.95'); dot.setAttribute('stroke', '#0b0d12'); dot.setAttribute('stroke-width', '1.2');
+  svg.appendChild(dot);
+
+  // ★MAX外周●（同率トップも全部）
+  strongestAxes(vec).forEach(ii=>{
+    const a = ang[ii];
+    const mx2 = cx+Math.cos(a)*r, my2 = cy+Math.sin(a)*r;
+    const m2 = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    m2.setAttribute('cx', mx2); m2.setAttribute('cy', my2);
+    m2.setAttribute('r', 4);
+    m2.setAttribute('fill', '#ffffff');
+    m2.setAttribute('stroke', '#0b0d12');
+    m2.setAttribute('stroke-width', '1.2');
+    svg.appendChild(m2);
+  });
+}
+
+function hexToRgba(hex, a){
+  if(hex.startsWith('rgba')) return hex.replace(/, ?\d?\.?\d+\)/, ','+a+')');
+  const v = hex.replace('#',''); const num = parseInt(v,16);
+  const r = (v.length===3) ? ((num>>8)&0xF)*17 : (num>>16)&0xFF;
+  const g = (v.length===3) ? ((num>>4)&0xF)*17 : (num>>8)&0xFF;
+  const b = (v.length===3) ? ((num>>0)&0xF)*17 : (num>>0)&0xFF;
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ========= PNG出力（濃色BG＋読みやすさUP＋小さめ800×560＋DPR対応） ========= */
+function saveImage(uname, title, vec, colors, desc, sum, catchy){
+  const CSS_W = 800, CSS_H = 560;             // ← 小さめ出力
+  const DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+  const W = CSS_W * DPR, H = CSS_H * DPR;
+
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  c.style.width = CSS_W + 'px';
+  c.style.height = CSS_H + 'px';
+  const g = c.getContext('2d');
+  g.setTransform(DPR, 0, 0, DPR, 0, 0);
+  g.clearRect(0,0,CSS_W,CSS_H);
+
+  // 背景：濃色＋弱めのテーマグラデ＋ビネット（白は使わない）
+  g.fillStyle = '#0a0c14';
+  g.fillRect(0,0,CSS_W,CSS_H);
+
+  const grd = g.createLinearGradient(0,0,CSS_W,CSS_H);
+  grd.addColorStop(0, hexToRgba(colors[0], 0.18));
+  grd.addColorStop(1, hexToRgba(colors[1], 0.10));
+  g.fillStyle = grd; g.fillRect(0,0,CSS_W,CSS_H);
+
+  const vg = g.createRadialGradient(CSS_W*0.5, CSS_H*0.42, CSS_W*0.12, CSS_W*0.5, CSS_H*0.42, CSS_W*0.65);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.35)');
+  g.fillStyle = vg; g.fillRect(0,0,CSS_W,CSS_H);
+
+  // 外枠
+  g.strokeStyle='#25304e'; g.lineWidth=1.5; g.strokeRect(18,18,CSS_W-36,CSS_H-36);
+
+  // タイトル
+  const FONT_UI = '"Noto Sans JP","Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,Roboto,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+  g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 5; g.shadowOffsetX = 0; g.shadowOffsetY = 2;
+
+  g.fillStyle='#cfe1ff'; g.font=`700 22px ${FONT_UI}`;
+  g.fillText('お絵かきスタイル診断', 36, 52);
+
+  g.font=`700 32px ${FONT_UI}`; g.fillStyle='#e8ecff';
+  g.fillText(`${uname} は「${title}」`, 36, 98);
+
+  // 説明パネル
+  const panelX=28, panelY=112, panelW=430, panelH=280;
+  drawPanel(g, panelX, panelY, panelW, panelH);
+
+  g.shadowBlur = 0; g.shadowOffsetX = 0; g.shadowOffsetY = 0;
+  g.font=`15px ${FONT_UI}`; 
+  g.fillStyle='#b7c3de';
+  let y = panelY + 26;
+  y = wrap(g, desc, panelX+14, y, panelW-28, 22);
+  y = wrap(g, sum,  panelX+14, y+10, panelW-28, 22);
+  g.fillStyle='#cfd9f3';
+  y = wrap(g, catchy, panelX+14, y+10, panelW-28, 22);
+
+  const tend = tendencyTextLines(vec);
+  g.fillStyle='#a9b4cc';
+  wrap(g, tend, panelX+14, y+10, panelW-28, 20);
+
+  // レーダー（右側）
+  drawRadarOnCanvas(g, 580, 300, 170, vec, colors);
+
+  // ハッシュタグプレート
+  g.fillStyle='rgba(12,18,34,0.9)'; 
+  g.fillRect(32, CSS_H-60, 280, 32);
+  g.strokeStyle='#2a3350'; g.lineWidth=1; g.strokeRect(32, CSS_H-60, 280, 32);
+  g.fillStyle='#dfe7ff'; g.font=`bold 14px ${FONT_UI}`;
+  g.fillText('#お絵かきスタイル診断', 46, CSS_H-39);
+
+  // コピーライト
+  g.font=`12px ${FONT_UI}`; g.fillStyle='#96a2bb';
+  g.fillText('© 2025 お絵かきスタイル診断 — situation edition', CSS_W-420, CSS_H-28);
+
+  // 出力（toBlob優先）
+  if (c.toBlob) {
+    c.toBlob((blob)=>{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `oekaki_style_${Date.now()}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=> URL.revokeObjectURL(url), 1500);
+    }, 'image/png');
+  } else {
+    const url = c.toDataURL('image/png');
+    const a = document.createElement('a'); a.href=url; a.download= `oekaki_style_${Date.now()}.png`; a.click();
+  }
+}
+
+/* 角丸暗パネル（内側に微グラデ） */
+function drawPanel(g, x, y, w, h){
+  const r = 12;
+  g.save();
+  g.beginPath();
+  g.moveTo(x+r,y);
+  g.arcTo(x+w,y,x+w,y+h,r);
+  g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r);
+  g.arcTo(x,y,x+w,y,r);
+  g.closePath();
+
+  const pg = g.createLinearGradient(x,y,x,y+h);
+  pg.addColorStop(0,'rgba(10,14,24,0.78)');
+  pg.addColorStop(1,'rgba(10,14,24,0.92)');
+  g.fillStyle = pg; g.fill();
+
+  g.strokeStyle='rgba(42,51,80,0.9)'; g.lineWidth=1;
+  g.stroke();
+  g.restore();
+}
+
+/* CJK折り返し（絵文字OKの1文字評価） */
+function wrap(g, text, x, y, maxWidth, lh){
+  const chars = [...String(text)]; // 絵文字も崩れにくい
+  let line = '';
+  for (let i=0;i<chars.length;i++){
+    const test = line + chars[i];
+    if (g.measureText(test).width > maxWidth){
+      g.fillText(line, x, y);
+      y += lh;
+      line = chars[i];
+    } else {
+      line = test;
+    }
+  }
+  if(line) g.fillText(line, x, y);
+  return y;
+}
+
+/* PNG用レーダー（キャンバス） */
+function drawRadarOnCanvas(g,cx,cy,r,vec,colors){
+  const v = Array.isArray(vec) && vec.length===5 ? vec.map(x=>(+x||0)) : [0,0,0,0,0];
+  const ang = (function(){ const a=[]; const base=-Math.PI/2, step=2*Math.PI/10; for(let i=0;i<10;i++) a.push(base+i*step); return a; })();
+
+  // grid
+  g.save();
+  g.strokeStyle='#2a3454'; g.lineWidth=1;
+  for(let k=1;k<=5;k++){
+    g.beginPath();
+    for(let i=0;i<10;i++){
+      const rr=r*k/5, x=cx+Math.cos(ang[i])*rr, y=cy+Math.sin(ang[i])*rr;
+      if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
+    }
+    g.closePath(); g.stroke();
+  }
+
+  // labels
+  const AXPOS=["直感","即興","感情","勢い","抽象"], AXNEG=["理屈","計画","理性","完璧","具体"];
+  g.fillStyle='#cfe1ff'; g.font='11px "Noto Sans JP",system-ui,sans-serif';
+  for(let i=0;i<10;i++){
+    const x=cx+Math.cos(ang[i])*r, y=cy+Math.sin(ang[i])*r;
+    const ax=i%5, txt=(i<5)?AXPOS[ax]:AXNEG[ax];
+    g.fillText(txt, x+(Math.cos(ang[i])>0?6:-22), y+(Math.sin(ang[i])>0?14:-6));
+  }
+
+  // polygon
+  const t = v.map(val=> (val===0 ? 0.5 : (val+5)/10) );
+  const ring=[]; for(let ax=0;ax<5;ax++) ring.push(0.5 + (t[ax]-0.5)*EXAGGERATE);
+  for(let ax=0;ax<5;ax++) ring.push(0.5 + ((1-t[ax])-0.5)*EXAGGERATE);
+  const clamp = ring.map(x=> Math.max(0,Math.min(1,x)));
+  const smooth = (function(arr,a){ const n=arr.length,out=new Array(n); for(let i=0;i<n;i++){ const p=arr[(i-1+n)%n],c=arr[i],nxt=arr[(i+1)%n]; const m=(p+c+nxt)/3; out[i]=c*(1-a)+m*a; } return out; })(clamp, SMOOTH_ALPHA);
+
+  g.beginPath();
+  for(let i=0;i<10;i++){
+    const rr=r*smooth[i], x=cx+Math.cos(ang[i])*rr, y=cy+Math.sin(ang[i])*rr;
+    if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
+  }
+  g.closePath();
+  const avg = (Math.abs(v[0])+Math.abs(v[1])+Math.abs(v[2])+Math.abs(v[3])+Math.abs(v[4]))/5;
+  const fillOpacity = 0.22 + 0.5*(avg/5);
+  g.fillStyle=hexToRgba(colors[0], fillOpacity); g.fill();
+  g.strokeStyle=colors[1]; g.lineWidth=2.2; g.stroke();
+
+  // top1 marker
+  const top1 = (function(){
+    const idx = [0,1,2,3,4].sort((a,b)=> Math.abs(v[b]) - Math.abs(v[a]) )[0];
+    const sign = Math.sign(v[idx]); return {idx: sign>=0?idx:idx+5, ax:idx, sign};
+  })();
+  const aCenter = ang[top1.idx];
+  const rr=r*smooth[top1.idx];
+  const mx=cx+Math.cos(aCenter)*rr, my=cy+Math.sin(aCenter)*rr;
+  g.fillStyle = top1.idx<5? AXES[top1.ax].posHue : AXES[top1.ax].negHue;
+  g.beginPath(); g.arc(mx,my,4.5,0,Math.PI*2); g.fill();
+  g.strokeStyle='#0b0d12'; g.lineWidth=1; g.beginPath(); g.arc(mx,my,4.5,0,Math.PI*2); g.stroke();
+
+  // MAX外周●（同率トップも全部）
+  const strongest = (function(vec){
+    const mags = vec.map(x=>Math.abs(x)); const maxv = Math.max.apply(null,mags); const res=[];
+    for(let ax=0;ax<5;ax++){ if(Math.abs(vec[ax])===maxv){ res.push(vec[ax]>=0?ax:ax+5); } } return res;
+  })(v);
+  g.fillStyle='#ffffff'; g.strokeStyle='#0b0d12'; g.lineWidth=1;
+  strongest.forEach(ii=>{
+    const a=ang[ii], x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+    g.beginPath(); g.arc(x,y,3.6,0,Math.PI*2); g.fill();
+    g.beginPath(); g.arc(x,y,3.6,0,Math.PI*2); g.stroke();
+  });
+
+  g.restore();
+}
+
+function tendencyTextLines(vec){
+  function phrase(v,pos,neg){
+    if(v>=3) return `強い${pos}`;
+    if(v===2) return `${pos}寄り`;
+    if(v===1) return `${pos}やや優勢`;
+    if(v===0) return `バランス`;
+    if(v===-1) return `${neg}優勢`;
+    if(v===-2) return `${neg}寄り`;
+    return `${neg}強め`;
+  }
+  return `傾向まとめ：`+
+    `直感/理屈=${phrase(vec[0],"直感","理屈")}｜`+
+    `即興/計画=${phrase(vec[1],"即興","計画")}｜`+
+    `感情/理性=${phrase(vec[2],"感情","理性")}｜`+
+    `勢い/完璧=${phrase(vec[3],"勢い","完璧")}｜`+
+    `抽象/具体=${phrase(vec[4],"抽象","具体")}`;
+}
+</script>
+</body>
+</html>
