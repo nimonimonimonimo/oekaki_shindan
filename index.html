@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>お絵かきスタイル診断｜モバイル最適化版</title>
+<title>お絵かきスタイル診断｜モバイル最適化・レーダー上配置</title>
 <meta name="theme-color" content="#0b0d12">
 <meta property="og:title" content="お絵かきスタイル診断">
 <meta property="og:description" content="25問で創作スタイルを診断。トップ1強調＋MAX外周ドットのレーダー付き。">
@@ -87,7 +87,6 @@ footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align
 /* ======== スマホ最適化 ======== */
 @media (max-width: 768px){
   .wrap{padding-bottom:160px} /* 下部固定バー分の余白 */
-  #result .grid2{display:block}
   .big{font-size:18px}
   .tag{font-size:12px}
   .note{font-size:14px}
@@ -165,6 +164,7 @@ footer{max-width:1040px;margin:40px auto;color:#96a2bb;font-size:12px;text-align
 
 /* ==== failsafe：グローバル関数 + addEventListener ==== */
 let uname="", idx=0, answers=[];
+let __lastVec=null, __lastColors=null; // リサイズ再描画用
 const el = id => document.getElementById(id);
 function toggleAbout(){ const a=el('about'); a.style.display=(a.style.display==='none')?'block':'none'; }
 function startQuiz(){
@@ -173,7 +173,10 @@ function startQuiz(){
   idx=0; answers.length=0; renderQ();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function goHome(){ el('quizwrap').style.display='none'; el('result').style.display='none'; el('intro').style.display='block'; el('actionbar').style.display='none'; }
+function goHome(){
+  el('quizwrap').style.display='none'; el('result').style.display='none';
+  el('intro').style.display='block'; el('actionbar').style.display='none';
+}
 function goBack(){ if(idx>0){ idx--; renderQ(true); window.scrollTo({top:0,behavior:'smooth'});} }
 window.startQuiz = startQuiz; window.toggleAbout = toggleAbout; window.goHome = goHome; window.goBack = goBack;
 (function bindOnce(){
@@ -288,42 +291,33 @@ function finish(){
   const colors = themeFor(sig4, abs.flavor);
   applyTheme(colors);
 
- el('result').innerHTML = `
-  <div class="frame canvaswrap">
-    <div id="chartBox">
-      <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
+  // レーダーチャートを最上段に配置（→ テキスト群）
+  el('result').innerHTML = `
+    <div class="frame canvaswrap">
+      <div id="chartBox">
+        <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
+      </div>
     </div>
-  </div>
-  <div class="frame">
-    <div class="big"><span class="slab">${escapeHtml(uname)}</span> は <span class="badge">${baseName}${abs.suffix}</span></div>
-    <div id="caps" class="tags"></div>
-    <div id="summary" class="muted"></div>
-    <div class="hr"></div>
-    <div id="tend" class="note"></div>
-    <div class="hr"></div>
-    <div id="materialHint" class="note"></div>
-    <div class="small" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-      <button type="button" class="btn secondary" onclick="goHome()">最初の画面へ戻る</button>
-      <button type="button" class="btn secondary" id="redo">回答を見直す</button>
-      <button type="button" class="btn secondary" id="copytxt">シェア文をコピー</button>
-      <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
-    </div>
-  </div>
-`;
-
-      <div class="frame canvaswrap">
-        <div id="chartBox">
-          <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
-        </div>
+    <div class="frame">
+      <div class="big"><span class="slab">${escapeHtml(uname)}</span> は <span class="badge">${baseName}${abs.suffix}</span></div>
+      <div id="caps" class="tags"></div>
+      <div id="summary" class="muted"></div>
+      <div class="hr"></div>
+      <div id="tend" class="note"></div>
+      <div class="hr"></div>
+      <div id="materialHint" class="note"></div>
+      <div class="small" style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn secondary" onclick="goHome()">最初の画面へ戻る</button>
+        <button type="button" class="btn secondary" id="redo">回答を見直す</button>
+        <button type="button" class="btn secondary" id="copytxt">シェア文をコピー</button>
+        <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
       </div>
     </div>
   `;
   el('result').style.display = 'block';
 
-  // スマホアクションバー表示＆イベント紐付け
+  // スマホアクションバー表示＆イベント
   const ab = el('actionbar'); ab.style.display = 'block';
-  el('copytxt_m').onclick = ()=> copyShare(uname, baseName+abs.suffix, buildSummary(vec));
-  el('tweetbtn_m').onclick = ()=> openTweet(uname, baseName+abs.suffix, buildSummary(vec));
 
   // タグ群
   const caps = el('caps');
@@ -344,6 +338,7 @@ function finish(){
 
   // レーダー描画（レスポンシブ）
   drawRadarResponsive(vec, colors);
+  __lastVec = vec.slice(); __lastColors = colors.slice();
 
   // イベント
   el('redo').addEventListener('click', ()=>{
@@ -351,8 +346,15 @@ function finish(){
     el('actionbar').style.display='none';
     idx = Q.length-1; renderQ(true); window.scrollTo({top:0,behavior:'smooth'});
   });
-  el('copytxt').addEventListener('click', ()=> copyShare(uname, baseName+abs.suffix, sumText));
-  el('tweetbtn').addEventListener('click', ()=> openTweet(uname, baseName+abs.suffix, sumText));
+  const copyFn = ()=> copyShare(uname, baseName+abs.suffix, sumText);
+  const tweetFn = ()=> openTweet(uname, baseName+abs.suffix, sumText);
+  el('copytxt').addEventListener('click', copyFn);
+  el('tweetbtn').addEventListener('click', tweetFn);
+  el('copytxt_m').onclick = copyFn;
+  el('tweetbtn_m').onclick = tweetFn;
+
+  // 結果の先頭（レーダー）までスクロール
+  el('result').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 /* ========= 文章/テーマ/色 ========= */
@@ -447,7 +449,7 @@ function catchyLine(vec){
   return `「${side}${flair}」が主旋律。手は${noun}を辿りながら、あなたの像を結ぶ。`;
 }
 
-/* ========= レーダー（レスポンシブ描画） ========= */
+/* ========= レーダー（レスポンシブ） ========= */
 function angles10(){ const a=[]; const base=-Math.PI/2, step=2*Math.PI/10; for(let i=0;i<10;i++) a.push(base+i*step); return a; }
 function exaggerate01(x){ const y = 0.5 + (x-0.5)*EXAGGERATE; return Math.max(0, Math.min(1, y)); }
 function smoothRing(arr, alpha=0.45){
@@ -491,15 +493,13 @@ function avgAbs(vec){ return (Math.abs(vec[0])+Math.abs(vec[1])+Math.abs(vec[2])
 
 function drawRadarResponsive(vec, colors){
   const svg = el('radar');
-  // サイズ決定：親幅を基準に高さは比率で
   const box = el('chartBox');
-  const w = Math.max(260, Math.min(box.clientWidth, 560)); // スマホで大きすぎない・小さすぎない
+  const w = Math.max(260, Math.min(box.clientWidth, 560)); // スマホで見やすい幅
   const h = Math.round(w * (320/360));
   svg.setAttribute('width', w);
   svg.setAttribute('height', h);
 
-  // 原点・半径スケール
-  const scale = w / 360;           // viewBox基準
+  const scale = w / 360;
   const cx = 180 * scale;
   const cy = 170 * scale;
   const r  = 120 * scale;
@@ -601,45 +601,17 @@ function hexToRgba(hex, a){
   return `rgba(${r},${g},${b},${a})`;
 }
 
-/* ========= リサイズ対応 ========= */
+/* ========= リサイズで再描画 ========= */
 let _resizeTimer=null;
 window.addEventListener('resize', ()=>{ 
   if(el('result').style.display!=='block') return;
   clearTimeout(_resizeTimer);
   _resizeTimer=setTimeout(()=>{
-    // 再描画（vecを再計算しないので、その場のタグ値から復元はせず redrawはfinish内から呼ぶ想定）
-    // ここでは簡易に: 直近の傾向を保持できるよう finish()内でvecをグローバルに置いてもOK
-    if(window.__lastVec && window.__lastColors){
-      drawRadarResponsive(window.__lastVec, window.__lastColors);
+    if(__lastVec && __lastColors){
+      drawRadarResponsive(__lastVec, __lastColors);
     }
   }, 120);
 });
-
-/* 仕上げ：最後に使ったベクトル/色を保持 */
-window.__lastVec = null;
-window.__lastColors = null;
-const _old_finish = finish;
-finish = function(){
-  // オリジナルfinishの処理をそのまま実行するため、上のfinish本文を関数にしている。
-  // ここはラップではなく既に本文が上にあるので、このラップはスキップ。
-};
-
-/* finish本文内で最後に実行するようフック（上のfinish末尾に追記） */
-(function hookFinish(){
-  const _render = drawRadarResponsive;
-  // 既存 finish の最後でセットするため、MutationObserverで result が出たら拾う
-  const obs = new MutationObserver(()=>{
-    const svg = el('radar');
-    if(svg && svg.childNodes.length){ obs.disconnect(); }
-  });
-  // ここは軽い保険。実体は finish() 内の末尾で設定する：
-  // window.__lastVec, window.__lastColors を直接更新できるよう、drawRadarResponsiveをラップする
-  window.drawRadar = function(vec, colors){
-    window.__lastVec = vec.slice();
-    window.__lastColors = colors.slice();
-    _render(vec, colors);
-  };
-})();
 </script>
 </body>
 </html>
