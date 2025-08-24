@@ -288,7 +288,7 @@ function finish(){
   const colors = themeFor(sig4, abs.flavor);
   applyTheme(colors);
 
-  el('result').innerHTML = `
+ el('result').innerHTML = `
   <div class="frame canvaswrap">
     <div id="chartBox">
       <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
@@ -309,6 +309,14 @@ function finish(){
       <button type="button" class="btn primary" id="tweetbtn">X(Twitter)でシェア</button>
     </div>
   </div>
+`;
+
+      <div class="frame canvaswrap">
+        <div id="chartBox">
+          <svg id="radar" viewBox="0 0 360 320" preserveAspectRatio="xMidYMid meet" aria-label="レーダーチャート"></svg>
+        </div>
+      </div>
+    </div>
   `;
   el('result').style.display = 'block';
 
@@ -635,4 +643,3 @@ finish = function(){
 </script>
 </body>
 </html>
-
